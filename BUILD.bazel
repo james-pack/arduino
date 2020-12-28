@@ -2,8 +2,13 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "arduino",
-    srcs = ["Arduino.cc"],
+    srcs = [
+        "Arduino.cc",
+    ],
     hdrs = [
         "Arduino.h",
+    ],
+    deps = [
+        "@com_google_glog//:glog",
     ],
 )
