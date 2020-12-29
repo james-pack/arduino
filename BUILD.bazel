@@ -4,9 +4,11 @@ cc_library(
     name = "arduino",
     srcs = [
         "Arduino.cc",
+        "Wire.cc",
     ],
     hdrs = [
         "Arduino.h",
+        "Wire.h",
     ],
     deps = [
         "@com_google_glog//:glog",
