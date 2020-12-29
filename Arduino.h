@@ -2,12 +2,22 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <limits>
 #include <memory>
 #include <random>
 #include <string>
 
 #include "glog/logging.h"
+
+using arduino_short = int16_t;
+using arduino_ushort = int16_t;
+
+using arduino_int = int32_t;
+using arduino_uint = uint32_t;
+
+using arduino_long = int32_t;
+using arduino_ulong = uint32_t;
 
 enum ArduinoPinMode {
   INPUT_PULLUP,
@@ -59,49 +69,59 @@ class Pin {
 
   // This is just the last value written to the pin. Other behaviors are possible by overriding the value() method
   // below.
-  int32_t last_value;
+  arduino_int last_value;
 
-  virtual int32_t value() const { return last_value; }
+  virtual arduino_int value() const { return last_value; }
 };
 
-template <size_t NUM_PINS>
+template <arduino_int NUM_PINS>
 class Pins final {
  private:
   std::array<std::unique_ptr<Pin>, NUM_PINS> pins_{};
 
  public:
   Pins() {
-    for (size_t i = 0; i < NUM_PINS; ++i) {
+    for (arduino_int i = 0; i < NUM_PINS; ++i) {
       pins_[i] = std::make_unique<Pin>();
     }
   }
 
-  void put(size_t pin_id, std::unique_ptr<Pin> pin) { pins_[pin_id] = std::move(pin); }
-  Pin& get(size_t pin_id) { return *pins_[pin_id]; }
+  void put(arduino_int pin_id, std::unique_ptr<Pin> pin) { pins_[pin_id] = std::move(pin); }
+  Pin& get(arduino_int pin_id) { return *pins_[pin_id]; }
 };
 
 // Teensy 4.1 has 42 pins. This is our default for now.
 // TODO(james): Add structure for supporting multiple boards, MCUs, and configurations.
 extern Pins<42> pins;
 
+extern std::chrono::time_point<std::chrono::system_clock> start_time;
+
 }  // namespace arduino_internals
 
 extern arduino_internals::SerialT Serial;
 
-void randomSeed(unsigned long seed) { arduino_internals::RandomGlobals.randomNumberGenerator.seed(seed); }
+void randomSeed(arduino_ulong seed) { arduino_internals::RandomGlobals.randomNumberGenerator.seed(seed); }
 
-long random(long minimum, long maximum) {
-  int32_t low = std::max(minimum, static_cast<long>(std::numeric_limits<int32_t>::min()));
-  int32_t high = std::min(maximum, static_cast<long>(std::numeric_limits<int32_t>::max()));
+arduino_long random(arduino_long minimum, arduino_long maximum) {
+  arduino_long low = std::max(minimum, static_cast<arduino_long>(std::numeric_limits<arduino_long>::min()));
+  arduino_long high = std::min(maximum, static_cast<arduino_long>(std::numeric_limits<arduino_long>::max()));
   std::uniform_int_distribution<> distribution{low, high};
   return distribution(arduino_internals::RandomGlobals.randomNumberGenerator);
 }
 
-long random(long maximum) { return random(0, maximum); }
+arduino_long random(arduino_long maximum) { return random(0, maximum); }
 
-int constrain(int value, int minimum, int maximum) { return std::max(minimum, std::min(maximum, value)); }
+template <typename T>
+T constrain(T value, T minimum, T maximum) {
+  return std::max(minimum, std::min(maximum, value));
+}
 
-void pinMode(int pin, ArduinoPinMode mode) { arduino_internals::pins.get(pin).mode = mode; }
+void pinMode(arduino_int pin, ArduinoPinMode mode) { arduino_internals::pins.get(pin).mode = mode; }
 
-void analogWrite(int pin, int intensity) { arduino_internals::pins.get(pin).last_value = constrain(intensity, 0, 255); }
-int analogRead(int pin) { return constrain(arduino_internals::pins.get(pin).last_value, 0, 1023); }
+void analogWrite(arduino_int pin, arduino_int intensity) {
+  arduino_internals::pins.get(pin).last_value = constrain(intensity, 0, 255);
+}
+arduino_int analogRead(arduino_int pin) { return constrain(arduino_internals::pins.get(pin).last_value, 0, 1023); }
+
+arduino_ulong millis();
+arduino_ulong micros();
