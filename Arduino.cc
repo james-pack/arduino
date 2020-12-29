@@ -1,3 +1,8 @@
 #include "Arduino.h"
 
-SerialT Serial{};
+namespace arduino_internals {
+RandomT RandomGlobals{};
+Pins<42> pins;
+}  // namespace arduino_internals
+
+arduino_internals::SerialT Serial{};
