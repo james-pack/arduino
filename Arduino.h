@@ -4,6 +4,7 @@
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <random>
@@ -101,28 +102,44 @@ extern std::chrono::time_point<std::chrono::system_clock> start_time;
 
 extern arduino_internals::SerialT Serial;
 
-void randomSeed(arduino_ulong seed) { arduino_internals::RandomGlobals.randomNumberGenerator.seed(seed); }
+inline void randomSeed(arduino_ulong seed) { arduino_internals::RandomGlobals.randomNumberGenerator.seed(seed); }
 
-arduino_long random(arduino_long minimum, arduino_long maximum) {
+inline arduino_long random(arduino_long minimum, arduino_long maximum) {
   arduino_long low = std::max(minimum, static_cast<arduino_long>(std::numeric_limits<arduino_long>::min()));
   arduino_long high = std::min(maximum, static_cast<arduino_long>(std::numeric_limits<arduino_long>::max()));
   std::uniform_int_distribution<> distribution{low, high};
   return distribution(arduino_internals::RandomGlobals.randomNumberGenerator);
 }
 
-arduino_long random(arduino_long maximum) { return random(0, maximum); }
+inline arduino_long random(arduino_long maximum) { return random(0, maximum); }
 
 template <typename T>
 T constrain(T value, T minimum, T maximum) {
   return std::max(minimum, std::min(maximum, value));
 }
 
-void pinMode(arduino_int pin, ArduinoPinMode mode) { arduino_internals::pins.get(pin).mode = mode; }
+inline void pinMode(arduino_int pin, ArduinoPinMode mode) { arduino_internals::pins.get(pin).mode = mode; }
 
-void analogWrite(arduino_int pin, arduino_int intensity) {
+inline void analogWrite(arduino_int pin, arduino_int intensity) {
   arduino_internals::pins.get(pin).last_value = constrain(intensity, 0, 255);
 }
-arduino_int analogRead(arduino_int pin) { return constrain(arduino_internals::pins.get(pin).last_value, 0, 1023); }
+inline arduino_int analogRead(arduino_int pin) { return constrain(arduino_internals::pins.get(pin).last_value, 0, 1023); }
 
-arduino_ulong millis();
-arduino_ulong micros();
+inline arduino_ulong millis();
+inline arduino_ulong micros();
+
+using String = std::string;
+
+inline void interrupts() {}
+inline void noInterrupts() {}
+inline arduino_int digitalPinToInterrupt(arduino_int pin) { return pin; }
+
+enum InterruptMode {
+  LOW,
+  CHANGE,
+  RISING,
+  FALLING,
+  HIGH,
+};
+
+inline void attachInterrupt(arduino_int interrupt, std::function<void()> handler, InterruptMode mode) {}
