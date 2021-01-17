@@ -1,0 +1,9 @@
+bazel-arduino
+bazel-bin
+bazel-out
+bazel-testlogs
+
+.#BUILD.bazel
+.#WORKSPACE
+
+*~
