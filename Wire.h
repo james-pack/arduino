@@ -6,9 +6,10 @@ namespace arduino_internals {
 
 class WireT final {
  public:
+  void begin() {}
   void beginTransmission(uint8_t address) {}
   void write(uint8_t value) {}
-  void endTransmission();
+  void endTransmission() {}
 };
 
 }  // namespace arduino_internals

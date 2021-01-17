@@ -27,14 +27,61 @@ enum ArduinoPinMode {
   OUTPUT,
 };
 
+class String final {
+private:
+  std::string value_{};
+
+public:
+  String() = default;
+  String(arduino_int i) : value_(std::to_string(i)) {}
+  String(const char* s) : value_(s) {}
+  String(const std::string& s) : value_(s) {}
+  String(std::string&& s) : value_(std::move(s)) {}
+  String(const String& rhs) : value_(rhs.value_) {}
+  String(String&& rhs) : value_(std::move(rhs.value_)) {}
+
+  String& operator = (const String& rhs) {
+    value_ = rhs.value_;
+    return *this;
+  }
+
+  String& operator = (String&& rhs) {
+    value_ = std::move(rhs.value_);
+    return *this;
+  }
+
+  String operator + (const String& rhs) {
+    return String(value_ + rhs.value_);
+  }
+
+  String& operator += (const String& rhs) {
+    value_ += rhs.value_;
+    return *this;
+  }
+
+  String& operator += (String&& rhs) {
+    value_ += std::move(rhs.value_);
+    return *this;
+  }
+
+  const char* c_str() const {
+    return value_.c_str();
+  }
+};
+
 namespace arduino_internals {
 
 // TODO(james): Note that this "design" is upside down. It would be better to port glog to work on top of Arduino's
 // Serial mechanism and use glog instead of Serial. But this approach accomplishes the main goal of getting debug info.
 class SerialT final {
  public:
+  void begin(arduino_uint baud_rate) {}
+
   void print(const std::string& msg) { LOG(INFO) << msg; }
   void println(const std::string& msg) { LOG(INFO) << msg << "\n"; }
+
+  void print(const String& msg) { LOG(INFO) << msg.c_str(); }
+  void println(const String& msg) { LOG(INFO) << msg.c_str() << "\n"; }
 
   void print(uint8_t msg) { LOG(INFO) << std::to_string(msg); }
   void println(uint8_t msg) { LOG(INFO) << std::to_string(msg) << "\n"; }
@@ -124,11 +171,10 @@ inline void analogWrite(arduino_int pin, arduino_int intensity) {
   arduino_internals::pins.get(pin).last_value = constrain(intensity, 0, 255);
 }
 inline arduino_int analogRead(arduino_int pin) { return constrain(arduino_internals::pins.get(pin).last_value, 0, 1023); }
+inline bool digitalRead(arduino_int pin) { return true; }
 
-inline arduino_ulong millis();
-inline arduino_ulong micros();
-
-using String = std::string;
+arduino_ulong millis();
+arduino_ulong micros();
 
 inline void interrupts() {}
 inline void noInterrupts() {}

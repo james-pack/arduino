@@ -9,6 +9,7 @@ cc_library(
     hdrs = [
         "Arduino.h",
         "Wire.h",
+	"Encoder.h",
     ],
     deps = [
         "@com_google_glog//:glog",
