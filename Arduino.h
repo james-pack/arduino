@@ -175,6 +175,7 @@ inline bool digitalRead(arduino_int pin) { return true; }
 
 arduino_ulong millis();
 arduino_ulong micros();
+inline void delay(uint32_t millis) {}
 
 inline void interrupts() {}
 inline void noInterrupts() {}
