@@ -83,6 +83,9 @@ class SerialT final {
   void print(const String& msg) { LOG(INFO) << msg.c_str(); }
   void println(const String& msg) { LOG(INFO) << msg.c_str() << "\n"; }
 
+  void print(const char* msg) { LOG(INFO) << msg; }
+  void println(const char* msg) { LOG(INFO) << msg << "\n"; }
+
   void print(uint8_t msg) { LOG(INFO) << std::to_string(msg); }
   void println(uint8_t msg) { LOG(INFO) << std::to_string(msg) << "\n"; }
   void print(int8_t msg) { LOG(INFO) << std::to_string(msg); }
